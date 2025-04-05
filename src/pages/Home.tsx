@@ -37,7 +37,7 @@ const HomePage = () => {
   return (
     <div className="container px-4 py-6 space-y-6 max-w-md mx-auto">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Cardly</h1>
+        <h1 className="text-2xl font-bold">VISTO CARDS</h1>
         <Bell className="h-6 w-6" />
       </div>
       
@@ -61,3 +61,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

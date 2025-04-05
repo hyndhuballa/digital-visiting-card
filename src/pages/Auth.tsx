@@ -10,7 +10,7 @@ const AuthPage = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Cardly</h1>
+          <h1 className="text-3xl font-bold text-primary">VISTO CARDS</h1>
           <p className="text-muted-foreground">Connect your business network</p>
         </div>
         
@@ -32,3 +32,4 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+
