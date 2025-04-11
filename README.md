@@ -1,74 +1,109 @@
+# Cardly Connect Hub
 
-# Welcome to your VISTO CARDS project
+A modern business card management application built with React, TypeScript, and Tailwind CSS.
 
-## Project info
+## Features
 
-**URL**: https://lovable.dev/projects/65238b3c-fe9b-486d-bd4e-5715ef2d43e3
+- **Digital Business Card Management**: Store and organize your business cards digitally
+- **Card Scanning**: Scan physical business cards to extract information
+- **Contact Management**: Organize and manage your contacts efficiently
+- **Responsive Design**: Works seamlessly on mobile, tablet, and desktop devices
+- **Modern UI**: Built with Shadcn UI components for a polished look and feel
 
-## How can I edit this code?
+## Tech Stack
 
-There are several ways of editing your application.
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: Tailwind CSS, Shadcn UI
+- **State Management**: React Query
+- **Routing**: React Router
+- **Form Handling**: React Hook Form, Zod
+- **UI Components**: Radix UI primitives
 
-**Use Lovable**
+## Getting Started
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/65238b3c-fe9b-486d-bd4e-5715ef2d43e3) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (v18 or higher)
+- npm or yarn
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/cardly-connect-hub.git
+   cd cardly-connect-hub
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-Follow these steps:
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. Open your browser and navigate to `http://localhost:8080`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Project Structure
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/       # Reusable UI components
+│   ├── ui/           # Base UI components
+│   ├── layout/       # Layout components
+│   ├── cards/        # Card-related components
+│   ├── contacts/     # Contact-related components
+│   └── auth/         # Authentication components
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions and libraries
+├── pages/            # Page components
+└── App.tsx           # Main application component
 ```
 
-**Edit a file directly in GitHub**
+## Development
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm run build:dev` - Build the application for development
+- `npm run lint` - Run ESLint to check for code issues
+- `npm run preview` - Preview the production build locally
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Testing
 
-## What technologies are used for this project?
+To run tests:
 
-This project is built with:
+```bash
+npm test
+# or
+yarn test
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment
 
-## How can I deploy this project?
+To build the application for production:
 
-Simply open [Lovable](https://lovable.dev/projects/65238b3c-fe9b-486d-bd4e-5715ef2d43e3) and click on Share -> Publish.
+```bash
+npm run build
+# or
+yarn build
+```
 
-## Can I connect a custom domain to my Lovable project?
+The built files will be in the `dist` directory.
 
-Yes it is!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Acknowledgments
+
+- [Shadcn UI](https://ui.shadcn.com/) for the beautiful UI components
+- [Radix UI](https://www.radix-ui.com/) for the accessible UI primitives
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework

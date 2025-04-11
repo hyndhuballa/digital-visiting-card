@@ -1,6 +1,6 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import Grid from "@/components/ui/grid";
 import { useNavigate } from "react-router-dom";
 
 interface CardItem {
@@ -8,7 +8,9 @@ interface CardItem {
   name: string;
   company: string;
   designation: string;
-  tags: string[];
+  email: string;
+  phone: string;
+  status: "active" | "inactive";
 }
 
 interface CardListProps {
@@ -17,40 +19,38 @@ interface CardListProps {
 
 const CardList = ({ cards }: CardListProps) => {
   const navigate = useNavigate();
-  
-  const handleCardClick = (id: string) => {
-    navigate(`/wallet/card/${id}`);
+
+  const handleCardClick = (cardId: string) => {
+    navigate(`/cards/${cardId}`);
   };
 
   return (
-    <div className="space-y-4">
+    <Grid cols={1} md={2} lg={3} gap={4}>
       {cards.map((card) => (
         <Card 
-          key={card.id} 
-          className="cursor-pointer hover:shadow-md transition-shadow animate-fade-in"
+          key={card.id}
+          className="cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => handleCardClick(card.id)}
         >
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                {card.name.slice(0, 2).toUpperCase()}
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="font-semibold text-lg truncate">{card.name}</h3>
+                <p className="text-sm text-muted-foreground truncate">{card.designation}</p>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">{card.name}</h3>
-                <p className="text-sm text-muted-foreground">{card.designation} at {card.company}</p>
-              </div>
+              <Badge variant={card.status === "active" ? "default" : "secondary"}>
+                {card.status}
+              </Badge>
             </div>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {card.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+            <div className="space-y-1 text-sm">
+              <p className="truncate">{card.company}</p>
+              <p className="truncate">{card.email}</p>
+              <p className="truncate">{card.phone}</p>
             </div>
           </CardContent>
         </Card>
       ))}
-    </div>
+    </Grid>
   );
 };
 

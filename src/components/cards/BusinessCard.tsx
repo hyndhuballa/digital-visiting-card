@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,7 +66,7 @@ const BusinessCard = ({
   };
 
   return (
-    <div className="business-card bg-white shadow-lg">
+    <div className="business-card bg-white shadow-lg rounded-lg p-3 sm:p-4 md:p-6 relative h-full flex flex-col">
       {editable && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -94,27 +93,29 @@ const BusinessCard = ({
 
       <div className="flex flex-col h-full justify-between">
         <div className="space-y-1">
-          <h2 className="font-bold text-xl">{cardData.name}</h2>
-          <p className="text-sm text-muted-foreground">{cardData.designation}</p>
-          <p className="text-sm font-medium">{cardData.company}</p>
+          <h2 className="font-bold text-base sm:text-lg md:text-xl truncate">{cardData.name}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{cardData.designation}</p>
+          <p className="text-xs sm:text-sm font-medium truncate">{cardData.company}</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-3 sm:mt-4">
           {cardData.phone && (
             <div className="flex items-center text-xs text-muted-foreground">
-              <Phone className="h-3 w-3 mr-1" />
-              <span>{cardData.phone}</span>
+              <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">{cardData.phone}</span>
+              <span className="sm:hidden truncate">{cardData.phone.replace(/\d(?=\d{4})/g, '*')}</span>
             </div>
           )}
           
           {cardData.email && (
             <div className="flex items-center text-xs text-muted-foreground">
-              <Mail className="h-3 w-3 mr-1" />
-              <span>{cardData.email}</span>
+              <Mail className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">{cardData.email}</span>
+              <span className="sm:hidden truncate">{cardData.email.split('@')[0].slice(0, 2) + '...'}</span>
             </div>
           )}
           
-          <div className="flex gap-1 mt-1">
+          <div className="flex gap-1 mt-2 w-full sm:w-auto justify-center sm:justify-start">
             {cardData.linkedin && (
               <Button variant="outline" size="icon" className="h-6 w-6 rounded-full">
                 <Linkedin className="h-3 w-3" />
