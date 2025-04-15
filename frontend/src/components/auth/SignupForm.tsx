@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { UserPlus } from "lucide-react";
 
 const SignupForm = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,7 +17,7 @@ const SignupForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
@@ -28,16 +28,36 @@ const SignupForm = () => {
     
     setIsLoading(true);
     
-    // Simulate signup (replace with actual authentication)
-    setTimeout(() => {
-      localStorage.setItem("user", JSON.stringify({ email }));
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
       toast({
         title: "Account created",
         description: "Welcome to Cardly!",
       });
       navigate("/home");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : 'An error occurred',
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -51,10 +71,21 @@ const SignupForm = () => {
       <CardContent>
         <form onSubmit={handleSignup} className="space-y-4">
           <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              placeholder="johndoe"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              placeholder="john.doe@example.com"
+              placeholder="johndoe@example.com"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -81,23 +112,11 @@ const SignupForm = () => {
               required
             />
           </div>
-          
           {error && (
-            <div className="text-sm font-medium text-destructive">{error}</div>
+            <div className="text-sm text-red-500">{error}</div>
           )}
-          
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                Creating account...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Sign Up
-              </span>
-            )}
+            {isLoading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>
       </CardContent>

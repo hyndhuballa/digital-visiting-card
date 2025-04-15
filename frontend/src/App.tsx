@@ -15,8 +15,14 @@ import CardDetailsPage from "./pages/CardDetailsPage";
 import AddCardPage from "./pages/AddCard";
 import ContactsPage from "./pages/Contacts";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
+
+useEffect(() => {
+  console.log("API URL:", import.meta.env.VITE_API_URL);
+}, []);
+
 
 const App = () => {
   return (

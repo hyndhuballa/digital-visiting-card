@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+const bcrypt = require('bcryptjs');
+const { getDb } = require('../config/database');
 
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -10,19 +11,31 @@ const generateToken = (userId) => {
 const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+        const db = getDb();
 
         // Check if user exists
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        const existingUser = await db.collection('users').findOne({
+            $or: [{ email }, { username }]
+        });
+        
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Create new user
-        const user = new User({ username, email, password });
-        await user.save();
+        const result = await db.collection('users').insertOne({
+            username,
+            email,
+            password: hashedPassword,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
 
         // Generate token
-        const token = generateToken(user._id);
+        const token = generateToken(result.insertedId);
 
         // Set cookie
         res.cookie('token', token, {
@@ -34,12 +47,13 @@ const register = async (req, res) => {
         res.status(201).json({
             message: 'User created successfully',
             user: {
-                id: user._id,
-                username: user.username,
-                email: user.email
+                id: result.insertedId,
+                username,
+                email
             }
         });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: 'Error creating user', error: error.message });
     }
 };
@@ -47,15 +61,16 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        const db = getDb();
 
         // Find user
-        const user = await User.findOne({ email });
+        const user = await db.collection('users').findOne({ email });
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         // Check password
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -79,6 +94,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 };
@@ -90,9 +106,14 @@ const logout = (req, res) => {
 
 const getCurrentUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password');
+        const db = getDb();
+        const user = await db.collection('users').findOne(
+            { _id: req.user._id },
+            { projection: { password: 0 } }
+        );
         res.json(user);
     } catch (error) {
+        console.error('Get current user error:', error);
         res.status(500).json({ message: 'Error fetching user', error: error.message });
     }
 };

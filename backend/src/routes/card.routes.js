@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth.middleware');
-const Card = require('../models/card.model');
-const User = require('../models/user.model');
+const { getDb } = require('../config/database');
 
 // Get all cards
 router.get('/', auth, async (req, res) => {
     try {
-        const cards = await Card.find({ user: req.user._id })
-            .sort({ createdAt: -1 });
+        const db = getDb();
+        const cards = await db.collection('cards')
+            .find({ user: req.user._id })
+            .sort({ createdAt: -1 })
+            .toArray();
         res.json(cards);
     } catch (error) {
+        console.error('Error fetching cards:', error);
         res.status(500).json({ message: 'Error fetching cards', error: error.message });
     }
 });
@@ -18,24 +21,30 @@ router.get('/', auth, async (req, res) => {
 // Create a new card
 router.post('/', auth, async (req, res) => {
     try {
-        const { title, description, fields } = req.body;
+        const { name, email, contact, socialLinks } = req.body;
+        const db = getDb();
         
-        const card = new Card({
-            title,
-            description,
-            fields,
-            user: req.user._id
-        });
+        const card = {
+            name,
+            email,
+            contact,
+            socialLinks,
+            user: req.user._id,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
 
-        await card.save();
+        const result = await db.collection('cards').insertOne(card);
         
         // Add card to user's cards array
-        await User.findByIdAndUpdate(req.user._id, {
-            $push: { cards: card._id }
-        });
+        await db.collection('users').updateOne(
+            { _id: req.user._id },
+            { $push: { cards: result.insertedId } }
+        );
 
-        res.status(201).json(card);
+        res.status(201).json({ ...card, _id: result.insertedId });
     } catch (error) {
+        console.error('Error creating card:', error);
         res.status(500).json({ message: 'Error creating card', error: error.message });
     }
 });
@@ -43,7 +52,8 @@ router.post('/', auth, async (req, res) => {
 // Get a specific card
 router.get('/:cardId', auth, async (req, res) => {
     try {
-        const card = await Card.findOne({
+        const db = getDb();
+        const card = await db.collection('cards').findOne({
             _id: req.params.cardId,
             user: req.user._id
         });
@@ -54,6 +64,7 @@ router.get('/:cardId', auth, async (req, res) => {
 
         res.json(card);
     } catch (error) {
+        console.error('Error fetching card:', error);
         res.status(500).json({ message: 'Error fetching card', error: error.message });
     }
 });
@@ -63,18 +74,27 @@ router.put('/:cardId', auth, async (req, res) => {
     try {
         const { title, description, fields } = req.body;
         
-        const card = await Card.findOneAndUpdate(
+        const db = getDb();
+        const card = await db.collection('cards').findOneAndUpdate(
             { _id: req.params.cardId, user: req.user._id },
-            { title, description, fields },
-            { new: true, runValidators: true }
+            {
+                $set: {
+                    title,
+                    description,
+                    fields,
+                    updatedAt: new Date()
+                }
+            },
+            { returnDocument: 'after' }
         );
 
-        if (!card) {
+        if (!card.value) {
             return res.status(404).json({ message: 'Card not found' });
         }
 
-        res.json(card);
+        res.json(card.value);
     } catch (error) {
+        console.error('Error updating card:', error);
         res.status(500).json({ message: 'Error updating card', error: error.message });
     }
 });
@@ -82,22 +102,25 @@ router.put('/:cardId', auth, async (req, res) => {
 // Delete a card
 router.delete('/:cardId', auth, async (req, res) => {
     try {
-        const card = await Card.findOneAndDelete({
+        const db = getDb();
+        const card = await db.collection('cards').findOneAndDelete({
             _id: req.params.cardId,
             user: req.user._id
         });
 
-        if (!card) {
+        if (!card.value) {
             return res.status(404).json({ message: 'Card not found' });
         }
 
         // Remove card from user's cards array
-        await User.findByIdAndUpdate(req.user._id, {
-            $pull: { cards: card._id }
-        });
+        await db.collection('users').updateOne(
+            { _id: req.user._id },
+            { $pull: { cards: card.value._id } }
+        );
 
         res.json({ message: 'Card deleted successfully' });
     } catch (error) {
+        console.error('Error deleting card:', error);
         res.status(500).json({ message: 'Error deleting card', error: error.message });
     }
 });
@@ -108,13 +131,14 @@ router.post('/:cardId/share', auth, async (req, res) => {
         const { contactId } = req.body;
         
         // Verify contact exists
-        const user = await User.findById(req.user._id);
+        const db = getDb();
+        const user = await db.collection('users').findOne({ _id: req.user._id });
         if (!user.contacts.includes(contactId)) {
             return res.status(404).json({ message: 'Contact not found' });
         }
 
         // Get the card
-        const card = await Card.findOne({
+        const card = await db.collection('cards').findOne({
             _id: req.params.cardId,
             user: req.user._id
         });
@@ -125,12 +149,15 @@ router.post('/:cardId/share', auth, async (req, res) => {
 
         // Add to sharedWith array if not already shared
         if (!card.sharedWith.includes(contactId)) {
-            card.sharedWith.push(contactId);
-            await card.save();
+            await db.collection('cards').updateOne(
+                { _id: req.params.cardId, user: req.user._id },
+                { $push: { sharedWith: contactId } }
+            );
         }
 
         res.json({ message: 'Card shared successfully' });
     } catch (error) {
+        console.error('Error sharing card:', error);
         res.status(500).json({ message: 'Error sharing card', error: error.message });
     }
 });
